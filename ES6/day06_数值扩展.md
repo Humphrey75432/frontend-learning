@@ -170,3 +170,31 @@ Math.fround(NaN) // NaN
 
 该方法返回所有参数的平方和的平方根。例如注明的勾股定理（勾三股四弦五）
 
+```javascript
+Math.hypot(3, 4); // 5
+Math.hypot(a, b, c); // sqrt(3^2 + 4^2 + 5^2);
+```
+
+### 对数方法
+
+ES6新增了4个对数方法
+
+- Math.expm1(x): 返回`e^x - 1`
+- Math.log1p(x): 返回`1 + x`的自然对数，如果`x`小于-1， 返回`NaN`；
+- Math.log10(): 返回以10为底的x的对数。如果`x`小于0，则返回`NaN`；
+- Math.log2()：返回以2为底的x的对数。如果`x`小于0，则返回`NaN`;
+
+### 三角函数方法
+
+ES6新增了6个三角函数方法。
+
+- Math.sinh(x)：返回`x`的双曲正弦
+- Math.cosh(x)：返回`x`的双曲余弦
+- Math.tanh(x)：返回`x`的双曲正切
+- Math.asinh(x)：返回`x`的反双曲正弦
+- Math.acosh(x)：返回`x`的反双曲余弦
+- Math.atanh(x)：返回`x`的反双曲正切
+
+### 指数运算
+
+ES7新增了一个指数运算符`**`，目前Babel转码已经支持。这里不再赘述。
