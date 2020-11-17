@@ -25,7 +25,7 @@ var regex = new RegExp(/xyz/, 'i'); // ES5中报错、但是在ES6中是允许�
 
 ## ES6新增功能：`u`修饰符
 
-`U字符`为Unicode字符的意思，可以识别码点超过`0xFFFF`的字符。前一章节也讲过ES6加入了Unicode字符表示。因此正则也是可以支持Unicode的模式识别的。例子如下：
+`u字符`为Unicode字符的意思，可以识别码点超过`0xFFFF`的字符。前一章节也讲过ES6加入了Unicode字符表示。因此正则也是可以支持Unicode的模式识别的。例子如下：
 
 ```javascript
 /\u{61}/.test('a') // false
@@ -35,7 +35,7 @@ var regex = new RegExp(/xyz/, 'i'); // ES5中报错、但是在ES6中是允许�
 
 ### 预定义模式
 
-另外`U`字符也会影响预定义模式，能否正确识别大于`0xFFFF`的Unicode字符：
+另外`u`字符也会影响预定义模式，能否正确识别大于`0xFFFF`的Unicode字符：
 
 ```javascript
 function codePointLength(text) {
@@ -141,5 +141,32 @@ ES6为正则表达式新增了`flags`属性，会返回正则表达式的修饰�
 
 ```javascript
 /foo.bar/s.test('foo\nbar') // true
+```
+
+### 先行断言
+
+ES5中，JavaScript的正则表达式只支持“先行断言”和“先行否定断言”。先行断言的意思是：`x`只有在`y`前面才匹配，对应的正则模式需写成`/x(?=y)/`。同理：先行否定断言是指：`x`只有不在`y`前面才匹配，对应的正则匹配模式为：`/x(?!y)/`
+
+### 后行断言
+
+ES7中新增了一个提案，允许正则表达式进行“后行断言”。后行断言的意思是：`x`只有在`y`的后面才匹配，必须写成`/(?<=y)x/`。同理：后行否定断言是指：x只有不在y后面才匹配，对应的正则匹配模式为：`/(?<!y)x/`
+
+## Unicode属性类
+
+目前有一个新提案，允许正则表达式匹配符合Unicode某种属性的所有字符，使用前一定要加上`u`字符：
+
+```javascript
+const regexGreekSymbol = /\p{Script=Greek}/u;
+regexGreekSymbol.test('π'); // true
+```
+
+Unicode属性类要指定属性名和属性值：
+
+```javascript
+// 需要指定Unicode属性名和属性值
+\p{UnicodePropertyName=UnicodePropertyValue}
+
+// 对于某些属性，可以只写属性名
+\p{UnicodePropertyName}
 ```
 
