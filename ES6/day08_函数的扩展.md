@@ -229,10 +229,342 @@ var go = function* () {
 
 ## 严格模式
 
+从ES5开始，函数内部可以使用严格模式，在ES2016中做了一点修改。规定只要函数参数使用了默认值、解构赋值、或者扩展运算符，那么函数内部就不能显式设定为严格模式。
+
+这样规定的原因是：函数内部的严格模式同时适用于函数体和函数参数。但是函数执行时会先执行函数参数代码，再执行函数体代码。因此只有从函数体代码之中才能知道参数代码是否应该以严格模式执行，但是函数参数代码又要先于函数体执行。所以这就导致了不合理的存在。
+
+```javascript
+function doSomething(value = 070) { // value = 070 先执行
+    'use strict'; // 设置了严格模式
+    return value; // 后执行
+}
+// Illegal 'use strict' directive in function with non-simple parameter list
+```
+
+### 但是我想要用严格模式限定时该怎么办呢？
+
+```javascript
+'use strict' // 全局严格模式
+
+function doSomething(a, b = a) {}
+
+// 由于函数参数部分会先执行：那很简单，将函数包在一个无参数的立即执行函数中
+const doSomething = (function(){
+    'use strict';
+    return function(value = 42) {
+        return value;
+    }
+});
+```
+
+## name属性
+
+函数的`name`属性返回的是函数的名称。如果是将匿名函数赋给一个变量，在ES5中会返回空串，但是在ES6中会将变量名作为函数的名称。
+
+```javascript
+function foo () {}
+foo.name // 'foo'
+
+var func1 = function () {}
+
+// ES5
+func1.name // ""
+
+// ES6
+func1.name // "func1"
+```
+
 ## 箭头函数
+
+ES6中允许使用箭头`=>`来定义函数，定义效果和你使用`function`创建函数是等价的。
+
+```javascript
+var f = v => v;
+
+// 等同于
+
+var f = function(v) {
+    return v;
+};
+```
+
+如果箭头函数不需要参数或者需要多个参数，就是用圆括号来代表参数部分。
+
+```javascript
+var f = () => 5;
+// 等同于
+var f = function () {return 5;}
+
+var sum = (num1, num2) => num1 + num2;
+// 等同于
+var sum = function(num1, num2) {
+    return num1 + num2;
+}
+```
+
+如果箭头函数的代码块部分超过一条语句，就是用大括号将它们围起来，必须在对象外面加上括号。
+
+```javascript
+var sum = (num1, num2) => {return num1 + num2;}
+
+//大括号会解释为代码块，所以如果是用箭头函数返回对象，必须在对象外层加上大括号
+var getTemplate = id => ({id: id, name: "Temp"});
+```
+
+箭头函数也可以与变量解构结合
+
+```javascript
+const full = ({ first ,last }) => first + ' ' + last;
+// 等同于
+function full(person) {
+    return person.first + ' ' + person.last;
+}
+```
+
+使用箭头函数需要注意几个地方：
+
+- 函数体内的`this`对象，就是定义时所在的对象，而不是使用时所在的对象；
+- 不可以当做构造函数；（`this`对象的指向是可变的，而在箭头函数中是固定的）
+- 不可以使用`arguments`对象，如果要用，可以使用Rest参数代替；
+- 不可以使用`yield`命令，因此箭头函数不可以用作Generator函数
+
+```javascript
+function foo() {
+    setTimeout(() => {
+        console.log('id:', this.id);
+    }, 100);
+}
+
+var id = 21;
+foo.call({ id: 42 });
+// id: 42
+```
 
 ## 绑定this
 
+箭头函数可以绑定`this`对象，因此大大减少了显式绑定`this`对象的写法（`apply`、`call`、`bind`）。但是见图函数并不适用于任何场合，因此ES7提出了函数绑定运算符。语法为两个并排的冒号：`::`。双冒号左边是一个对象，右边是一个函数。该运算符会自动将左边的对象，作为上下文环境，绑定到右边的函数上面。
+
+```javascript
+foo::bar // bar.bind(foo)
+
+foo::bar(...arguments); // bar.bind(foo, arguments)
+
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+function hasOwn(obj, key) {
+    return obj::hasOwnProperty(key);
+}
+```
+
+如果双冒号左边为空（对需要绑定的对象为空），则等于将该方法绑定在对象上面。
+
+```javascript
+var method = obj::obj.foo;
+// 等同于
+var method = ::obj.foo;
+
+let log = ::console.log;
+// 等同于
+var log = console.log.bind(console);
+```
+
+由于双冒号运算符返回的还是原对象，因此可以采用链式写法。
+
+```javascript
+import { map, takeWhile, forEach } from "iterlib";
+
+// 例1
+getPlayers()
+::map(x => x.character())
+::takeWhile(x => x.strength > 100)
+::forEach(x => console.log(x));
+
+// 例2
+let { find, html } = jake;
+document.querySelectorAll("div.myClass");
+::find("p")
+::html("hahahh");
+```
+
 ## 尾调用优化
 
+尾调用是函数式编程中的一个重要概念：就是指某个函数的最后一步调用是另一个函数。例如下面的例子：函数f的最后一步是调用函数g。尾调用优化只在严格模式下才生效。
+
+```javascript
+function f(x) {
+    return g(x);
+}
+```
+
+下面三种情况都不属于尾调用：
+
+```javascript
+function f(x) {
+    let y = g(x);
+    return y;
+}
+
+function f(x) {
+    return g(x) + 1;
+}
+
+function f(x) {
+    g(x);
+    return undefined;
+}
+```
+
+尾调用不一定出现在函数尾部，只要是最后一步操作即可：
+
+```javascript
+function (x) {
+    if (x > 0) {
+        return m(x);
+    }
+    return n(x);
+}
+```
+
+通常来说：函数调用会在内存中形成一个“调用记录”，也称为调用帧。保存调用位置和内部变量等信息。
+
+由于尾调用是函数最后一步操作，因此不需要保留外层函数的调用帧，因为调用位置、内部变量等信息都不会再用到了，只要直接用内层函数的调用帧，取代外层函数的调用帧即可。
+
+这里有一个前提条件：只有不再用到外层函数的内部变量，内层函数的调用帧才会取代外层函数的调用帧，否则就无法进行“尾部调用优化”；
+
+```javascript
+function f() {
+    let m = 1;
+    let n = 2;
+    return g(m + n);
+}
+f()
+
+// 等同于
+function f() {
+    return g(3)
+}
+f();
+
+// 等同于
+g(3)
+```
+
+### 尾递归
+
+基于上述尾部调用优化的特性：因此对于尾递归来说，由于只存在一个调用帧，因此永远也不会发生“栈溢出”错误。（注：将函数的多参数转换为单参数的范式成为”柯里化“）
+
+```javascript
+// 非尾递归写法
+function factorial(n) {
+    if (n === 1) return 1;
+    return n * factorial(n - 1);
+}
+
+factorial(5) // 120
+
+// 尾递归写法
+function factorial(n, total = 1) {
+    if (n === 1) return total;
+    return factorial(n - 1, n * total);
+}
+
+factorial(5) // 120
+```
+
+还有斐波那契数列的例子：
+
+```javascript
+// 非尾递归写法
+function Fibonacci(n) {
+    if (n <= 1) { return 1 };
+    return Fibonacci(n - 1) + Fibonacci(n - 2);
+}
+Fibonacci(10); // 89
+Fibonacci(1000); // 运行很慢
+
+// 尾递归写法
+function Fibonacci(n, ac1 = 1, ac2 = 1) {
+    if (n <= 1) { return ac2; }
+    return Fibonacci(n - 1. ac2, ac1 + ac2);
+}
+
+Fibonacci2(100) // 573147844013817200000
+Fibonacci2(1000) // 7.0330367711422765e+208
+```
+
+可以看出“尾部调用优化”对于“尾递归"的意义重大，所以一些函数式编程语言将其写入了语言规格。换句话来说只要使用尾递归来实现就不会发生栈溢出，从而节省内存。
+
+### 蹦床函数
+
+由于尾部递归只能在严格模式下生效，理由如下：
+
+正常模式下函数有两个变量，可以用于跟踪和记录函数调用：
+
+- `func.arguments`：返回调用时的函数参数；
+- `func.caller`：返回调用当前的函数；
+
+尾部调用发生时，调用栈的记录会被改写，因此上面两个变量就会失真。而在严格模式下会禁用上面两个变量，因此尾部调用只能在严格模式下生效。
+
+那么，如果我现在正常模式下实现尾部递归的写法又该如何做呢？可以将递归转换为循环执行。也就是俗称的“蹦床函数”：如下所示：`sum`函数每执行一次，都会返回自身的另一个版本。
+
+```javascript
+function trampoline(f) {
+    while (f && f instanceof Function) {
+        f = f();
+    }
+    return f;
+}
+
+function sum(x, y) {
+    if (y > 0) {
+        return sum.bind(null, x + 1, y - 1);
+    } else {
+        return x;
+    }
+}
+
+trampoline(sum(1, 100000)); // 100001
+```
+
+但是上面的蹦床函数并不是真正的尾调用优化。下面这段代码来自官网教程。细细品位。
+
+```javascript
+function tco(f) {
+    var value;
+    var active = false; // 默认情况下该变量不激活
+    var accumulated = [];
+    
+    return function accumulator() {
+        accumulated.push(arguments);
+        if (!active) {
+            active = true; // 进入尾调用函数后激活
+            while(accumulated.length) {
+                value = f.apply(this, accumulated.shift());
+            }
+            active = false; // 调用完毕后关闭
+            return value;
+        }
+    };
+}
+
+var sum = tco(function (x, y){
+    if (y > 0) {
+        return sum(x + 1, y - 1)
+    } else {
+        return x;
+    }
+});
+
+sum(1, 10000) // 10001
+```
+
 ## 函数参数的尾逗号
+
+ES7将允许函数的最后一个参数有尾逗号。在此之前，不允许最后一个参数携带逗号;
+
+```javascript
+function clownsEveryWhere(
+ param1,
+ param2,
+) {}
+```
+
