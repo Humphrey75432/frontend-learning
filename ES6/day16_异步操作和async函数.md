@@ -203,3 +203,63 @@ async function getTitle(url) {
 getTitle('https://github.com/Humphrey75432').then(console.log);
 ```
 
+### 注意点
+
+（1）`await`命令后面的`Promise`对象，运行结果可能是`reject`，所以最好把`await`命令放入`try...catch`块中。
+
+```javascript
+async function myFunction() {
+    try {
+        await somethingThatReturnsAPromise();
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+// Another grammar
+
+async function myFunction() {
+    await somethingThatReturnsAPromise()
+    	.catch(function (err) {
+        console.log(err);
+    });
+}
+```
+
+（2）多个await命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。这样会提升执行效率
+
+```javascript
+let [foo, bar] = await Promise.all([getFoo(), getBar()]);
+
+// second grammar
+let fooPromise = getFoo();
+let barPromise = getBar();
+let foo = await fooPromise;
+let bar = await barPromise;
+```
+
+（3）如果确实希望多个请求并发执行，可以使用`Promise.all`方法。
+
+```javascript
+async function dbFuc(db) {
+  let docs = [{}, {}, {}];
+  let promises = docs.map((doc) => db.post(doc));
+
+  let results = await Promise.all(promises);
+  console.log(results);
+}
+
+// 或者使用下面的写法
+
+async function dbFuc(db) {
+  let docs = [{}, {}, {}];
+  let promises = docs.map((doc) => db.post(doc));
+
+  let results = [];
+  for (let promise of promises) {
+    results.push(await promise);
+  }
+  console.log(results);
+}
+```
+
