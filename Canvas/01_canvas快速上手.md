@@ -114,6 +114,68 @@ context.strokeStyle = "#acef4d"; // 画笔的颜色
 
 说完画布和画笔，我们来说颜料；计算机中的颜色表示相信大家都知道了。你可以用`RGB`或者`HSLA`颜色表示法，也可以像学习CSS那样给图形上颜色；非常简单。
 
+上色的方法也非常简单，只需要再创建画笔之后使用`context.fillStyle`就可以了。上色的方式支持下面这些：
+
+- 颜色字符串，例如：red，blue和purple；
+- 使用十六进制字符串或者其简写形式填充：#FF0000或者#FF0;
+- 使用`rgb()`方法设置颜色；R红色、G绿色、B蓝色；
+- 使用`rgba()`方法设置颜色；A代表(Alpha)，代表透明度；（0 ~ 1）；
+- 使用`hsl()`方法设置颜色；H色相、S饱和度、L明度；
+- 使用`hsla()`方法设置颜色；A代表透明度(Alpha)；（0 ~ 1）；
+
+### 渐变效果
+
+渐变分为两种，熟悉PS的同学应该知道是什么；
+
+- 线性渐变：`context.createLinearGradient(xstart, ystart, xend, yend)`
+- 径向渐变：`context.createRadialGradient(x0, y0, r0, x1, y1, r1)`
+
+添加渐变的步骤有下面3个：
+
+（1）添加渐变线
+
+（2）为渐变线添加关建色；
+
+（3）应用渐变；
+
+转换成代码就是下面这样子：（以线性渐变为例）
+
+```javascript
+// 添加渐变线
+let grd = context.createLinearGradient(xstart, ystart, xend, yend);
+let grd2 = context.createRadialGradient(x0, y0, r0, x1, y1, r1);
+
+// 添加关建色
+/* stop代表到(xstart, ystart)的距离占整个渐变色长度的比例，为0~1的浮点数 */
+grd.addColorStop(stop, color)
+
+// 应用渐变
+context.fillStyle = grd; // 填充渐变色
+context.strokeStyle = grd; // 线框渐变色
+```
+
+贴上一个例子方便理解：
+
+```javascript
+// Code should wrap in HTML script tag
+window.onload = function() {
+    let canvas = document.getElementById("canvas");
+    let context = canvas.getContext("2d");
+    
+    let grd = context.createRadialGradient(400, 300, 100, 400, 300, 200);
+    
+    grd.addColorStop(0, "olive");
+    grd.addColorStop(0.25, "maroon");
+    grd.addColorStop(0.5, "aqua");
+    grd.addColorStop(0.75, "fuchsia");
+    grd.addColorStop(0.25, "teal");
+    
+    context.fillStyle = grd;
+    
+    context.fillRect(100, 100, 600, 400);
+};
+```
+
 ### 橡皮擦
 
 canvas提供了一个API叫做`context.clearRect(x, y, w, h)`，这个API就是用来清除画布中的像素的，也就是现实作画中的橡皮擦。
