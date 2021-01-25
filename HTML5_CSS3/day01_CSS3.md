@@ -50,6 +50,33 @@ selector {
 
 一般在前端开发中会遵循一个编码规范：就是class选择器专门用来修饰样式；id选择器专门用来编写逻辑；
 
+### 属性选择器
+
+具有特定属性的HTML元素样式不仅仅是class和id，语法如下：
+
+```css
+[title] {
+    color: blue;
+}
+```
+
+举个例子：
+
+```css
+input[type="text"] {
+    width: 150px;
+    display: block;
+    margin-bottom: 10px;
+    background-color: yellow;
+}
+
+input[type="button"] {
+    width: 120px;
+    margin-left: 35px;
+    display: block;
+}
+```
+
 ### 嵌套和分组
 
 给很多样式相同的元素设置样式，可以使用分组选择器，语法如下：
@@ -262,7 +289,7 @@ CSS overflow属性用于控制内容溢出元素框时的显示方式，有下�
 
 既然出现了元素的“高度塌陷”，那么可以使用清除浮动的方法来解决这个问题：
 
-方法1：在浮动元素后使用一个空元素，并在CSS中赋予`.clear {clear: both}`属性即可清除浮动；例如：
+**方法1：在浮动元素后使用一个空元素，并在CSS中赋予`.clear {clear: both}`属性即可清除浮动；例如：**
 
 ```html
 <html>
@@ -285,7 +312,7 @@ CSS overflow属性用于控制内容溢出元素框时的显示方式，有下�
 
 
 
-方法2：使用CSS的overflow属性（BFC机制）
+**方法2：使用CSS的overflow属性（BFC机制）**
 
 给浮动元素的容器添加`overflow: hidden`或者`overflow: auto`可以清除浮动，在添加了相关属性后，浮动元素又回到了容器层，把容器高度撑起，达到清除浮动的效果。
 
@@ -321,13 +348,13 @@ CSS overflow属性用于控制内容溢出元素框时的显示方式，有下�
 
 
 
-方法3：给浮动元素的容器添加浮动
+**方法3：给浮动元素的容器添加浮动**
 
 给浮动元素的容器添加浮动属性即可清除内部浮动，但是这样做会使其整体浮动，影响布局，不推荐使用；
 
 
 
-方法4：使用邻接元素处理
+**方法4：使用邻接元素处理**
 
 什么都不做，给浮动元素后面的元素添加clear属性；
 
@@ -366,7 +393,7 @@ CSS overflow属性用于控制内容溢出元素框时的显示方式，有下�
 
 
 
-方法5：使用CSS的:after伪元素
+**方法5：使用CSS的:after伪元素**
 
 给浮动元素的容器添加一个clearfix的class，然后给这个class添加一个`:after`伪元素实现方法1的那种效果。此方法兼容性好；推荐这种方法；
 
@@ -411,9 +438,42 @@ CSS overflow属性用于控制内容溢出元素框时的显示方式，有下�
 </html>
 ```
 
-
-
 ## 伪类
 
+CSS伪类是用来添加一些选择器的特殊效果，语法如下：
 
+```css
+/* 基础语法 */
+selector:pseudo-class { property: value; }
 
+/* CSS类选择器 */
+selector.class:pseudo-class { property: value; }
+```
+
+### anchor伪类
+
+链接的不同状态都可以以不同的方式显示，例如：
+
+- `a:link`：未访问的链接
+- `a:visited`：已访问的链接
+- `a:hover`：鼠标划过的链接
+- `a:active`：已选中的链接
+
+### CSS伪元素
+
+CSS伪元素用来添加一些选择器的特殊效果，语法如下：
+
+```CSS
+/* 伪元素语法 */
+selector:pseudo-element { property: value; }
+
+/* CSS类也可以使用伪元素 */
+selector.class:pseudo-element { property: value; }
+```
+
+下面列举一些伪元素的使用：
+
+- `:first-line`：用于向文本的首行设置特殊样式；
+- `:first-letter`：用于向文本的首字母设置特殊样式；
+- `:before`：可以在元素的内容前插入新内容；
+- `:after`：可以在元素的内容后插入新内容；
