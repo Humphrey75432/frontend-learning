@@ -110,7 +110,104 @@ div {
 
 ## CSS3 2D & 3D转换
 
+### 2D转换
+
+2D变换方法有下面5种：
+
+- translate：根据x轴和y轴位置给定的参数，从当前元素位置移动；
+- rotate：在一个给定读书顺时针旋转元素，负值代表逆时针旋转；
+- scale：该元素增加或者减少大小，取决于宽度（x轴）和高度（y轴）的参数；
+- skew：表示x轴和y轴倾斜的角度，如果第二个参数为空，则默认为0，参数为负数表示像反方向倾斜；
+- matrix：和2D变换方法合并成一个，一共有六个参数，包括：旋转、缩放、移动和倾斜的功能；
+
+具体语法可以再查阅
+
+### 3D转换
+
+3D转换会使用到两个方法：
+
+- rotateX：围绕其在一个给定度数X轴旋转的元素；
+- rotateY：围绕其在一个给定读书Y轴旋转的元素；
+
+你也可以使用transform属性做2D和3D变换，一般来说建议使用transform属性，特别是在使用一些库来实现高级动画效果的时候；
+
+```css
+div {
+    transform: none | transform-functions;
+}
+/*
+transform-functions包括：
+matrix, matrix3d;
+translate, translate3d, translateX, translateY, translateZ;
+scale, scale3d, scaleX, scaleY, scaleZ;
+rotate, rotate3d, rotateX, rotateY, rotateX;
+skew, skewX, skewY;
+perspective：为3D转换元素定义透视视图；
+*/
+```
+
+## CSS3 过渡
+
+CSS3过渡是元素从一种样式逐渐改变为另一种效果，要实现这一点，必须规定两项内容；
+
+- 指定要添加效果的CSS属性；
+- 指定效果的持续时间；
+
+例子如下：
+
+```css
+div {
+    traisition: width 2s;
+    -webkit-transition: width 2s; /* Safari or Chrome */
+}
+
+/* 要添加多个样式的变换效果，可以使用逗号分隔属性 */
+div {
+    traisition: width 2s, height 2s, transform 2s;
+    -webkit-transform: width 2s, height 2s, transform 2s;
+}
+```
+
 ## CSS3 动画
+
+CSS3可以创建动画，可以取代一些JavaScript实现的动画效果；
+
+CSS3使用`@keyframes`创建动画，语法如下：
+
+```css
+@keyframes myfirst {
+    from { background: red; }
+    to { background: yellow; }
+}
+
+@-webkit-keyframes myfirst {
+    from { background: red; }
+    to { background: yellow; }
+}
+
+div {
+    animation: myfirst 5s;
+}
+
+/* 除此之外还可以这样定义 */
+@keyframes myfirst {
+    0% { background: red; }
+    25% { background: yellow; }
+    50% { background: blue; }
+    100% { background: green; }
+}
+
+@-webkit-keyframes myfirst {
+    0% { background: red; }
+    25% { background: yellow; }
+    50% { background: blue; }
+    100% { background: green; }
+}
+
+div {
+    animation: myfirst 5s;
+}
+```
 
 ## CSS3布局
 
